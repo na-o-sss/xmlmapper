@@ -4,21 +4,6 @@ require 'xmlmapper/types'
 module XMLMapper
   include Types 
 
-  def map(mapping)
-    if mapping[:attr] == nil || 
-        !(mapping[:attr].is_a? Symbol) ||
-        mapping[:xpath] == nil
-      raise "Illeagal arguments." 
-    end
-
-    self.class_eval { attr_reader mapping[:attr] }
-    (@mappings ||= []) << mapping
-  end
-
-  def root_node(path)
-    @root_node = path
-  end
-
   def load(xml)
     doc = REXML::Document.new(xml)
     objs = []
@@ -43,6 +28,21 @@ module XMLMapper
   end
 
   private
+  def map(mapping)
+    if mapping[:attr] == nil || 
+        !(mapping[:attr].is_a? Symbol) ||
+        mapping[:xpath] == nil
+      raise "Illeagal arguments." 
+    end
+
+    self.class_eval { attr_reader mapping[:attr] }
+    (@mappings ||= []) << mapping
+  end
+
+  def root_node(path)
+    @root_node = path
+  end
+
   def select_value(xml, path)
     node = REXML::XPath.match(xml, path)[0]
 
