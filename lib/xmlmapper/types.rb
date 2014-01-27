@@ -2,12 +2,14 @@ require "date"
 
 module XMLMapper
   module Types
-    def int(str)
-      str.to_i rescue nil
-    end
+    class << self
+      def int(str)
+        str.to_i rescue nil
+      end
 
-    def datetime(str)
-      DateTime.parse(str) rescue nil
+      def datetime(str)
+        DateTime.parse(str) rescue nil
+      end
     end
   end
 end

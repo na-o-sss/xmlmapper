@@ -1,30 +1,39 @@
 require 'rexml/document'
 require 'xmlmapper/types'
+require 'xmlmapper/util'
+require 'xmlmapper/eager_loading_objects'
 
 module XMLMapper
-  include Types 
 
   def load(xml)
     doc = REXML::Document.new(xml)
     objs = []
 
     REXML::XPath.match(doc, @root_node).each do |element|
-      obj = self.new
-
-      @mappings.each do |mapping|
-        var = "@" + mapping[:attr].to_s
-        val = select_value(element, mapping[:xpath])
-        
-        # convert value type if specified
-        val = self.send(mapping[:type], val) if mapping[:type]
-
-        obj.instance_variable_set(var, val)
-      end
-
-      objs << obj
+      objs << load_singular(element)
     end
 
     objs
+  end
+
+  def load_singular(element)
+    obj = self.new
+
+    @mappings.each do |mapping|
+      var = "@" + mapping[:attr].to_s
+      val = Util.select_value(element, mapping[:xpath])
+
+      # convert value type if specified
+      val = Types.send(mapping[:type], val) if mapping[:type]
+
+      obj.instance_variable_set(var, val)
+    end
+    obj
+  end
+
+  def eager_load(xml)
+    EagerLoadingObjects.new(xml, @root_node, 
+                           ->(element) { load_singular(element) })
   end
 
   private
@@ -41,21 +50,6 @@ module XMLMapper
 
   def root_node(path)
     @root_node = path
-  end
-
-  def select_value(xml, path)
-    node = REXML::XPath.match(xml, path)[0]
-
-    # if the node is not a text node or an attribute node, 
-    # return the value of the child text node of the node.
-    if node.is_a? REXML::Element
-      text = node.text
-    else
-      text = node.value
-    end
-    text
-  rescue 
-    nil
   end
 
 end
