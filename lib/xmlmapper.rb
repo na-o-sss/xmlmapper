@@ -28,15 +28,15 @@ module XMLMapper
   end
 
   private
-  def map(mapping)
-    if mapping[:attr] == nil || 
-        !(mapping[:attr].is_a? Symbol) ||
-        mapping[:xpath] == nil
+  def map(attr, xpath, type = nil)
+    if attr == nil || 
+        !(attr.is_a? Symbol) ||
+        xpath == nil
       raise "Illeagal arguments." 
     end
 
-    self.class_eval { attr_reader mapping[:attr] }
-    (@mappings ||= []) << mapping
+    self.class_eval { attr_reader attr }
+    (@mappings ||= []) << { attr: attr, xpath: xpath, type: type }
   end
 
   def root_node(path)
