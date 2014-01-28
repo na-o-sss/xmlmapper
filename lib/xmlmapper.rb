@@ -9,14 +9,27 @@ module XMLMapper
     doc = REXML::Document.new(xml)
     objs = []
 
-    REXML::XPath.match(doc, @root_node).each do |element|
+    REXML::XPath.each(doc, @root_node) do |element|
       objs << load_singular(element)
     end
 
     objs
   end
 
+  def eager_load(xml)
+    doc = REXML::Document.new(xml)
+
+    EagerLoadingObjects.new(
+      REXML::XPath.each(doc, @root_node),
+      ->(element) { load_singular(element) }
+    )
+  end
+
   def load_singular(element)
+    if element.is_a? String
+      element = REXML::Document.new(element)
+    end
+    
     obj = self.new
 
     @mappings.each do |mapping|
@@ -29,11 +42,6 @@ module XMLMapper
       obj.instance_variable_set(var, val)
     end
     obj
-  end
-
-  def eager_load(xml)
-    EagerLoadingObjects.new(xml, @root_node, 
-                           ->(element) { load_singular(element) })
   end
 
   private
