@@ -1,6 +1,6 @@
 # Xmlmapper
 
-TODO: Write a gem description
+A declarative mapper from XML documents to ruby objects.
 
 ## Installation
 
@@ -18,7 +18,14 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+At first, `extend XMLMapper` in your object class. You can now declare mappings of XML elements to instance variables of your object;
+```ruby
+map :var_name,  "ELEMENT_NAME"
+map :var_name2, "ELEMENT_NAME2", :int
+map :pub_date,  "PUB_DATE",      :datetime
+```
+
+Here is a sample [XML](http://cal.syoboi.jp/db.php?Command=TitleLookup&TID=200) and [mapped object](https://github.com/na-o-y/syobocal/blob/master/lib/syobocal/db/object/title.rb).
 
 ## Contributing
 
